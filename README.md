@@ -15,7 +15,7 @@ This file can then be used as input which should produce the decrypted output sa
 
 ![alt text](https://github.com/hariomenkel/AzoDecrypt/raw/master/screenshot3.PNG)
 
-  
+The script should also produce a ZIP file in the directory where it resides. The ZIP contains all credentials, cookies etc. how they were transmitted to the attacker.  
 
   
 
