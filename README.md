@@ -6,6 +6,11 @@ Rightclick > Copy to file
 The use azo_decrypt.py <inputfile> <output_file> to decrypt the request. Please note, that a normal C2-Traffic contains of two POST-Requests. One short "Check-In" and afterwards a bigger request with the Credentials, Cookies etc.
   
 ![alt text](https://github.com/hariomenkel/AzoDecrypt/raw/master/screenshot.PNG)
+
+This should give you a file like this:
+
+![alt text](https://github.com/hariomenkel/AzoDecrypt/raw/master/screenshot2.PNG)
+
   
 
   
