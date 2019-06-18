@@ -11,6 +11,23 @@ def extract_payload(data):
 	found = data.find('\x0d\x0a\x0d\x0a')
 	payload = data[found + 4:]
 	return data[found + 4:]
+	
+def ExtractZipFiles(startpos, data):
+	zip_begin = "\x50\x4b\x03\x04"
+	zip_end = "\x50\x4b\x05\x06"
+	start = data.find(zip_begin)
+	print "Found ZIP begin @ " + str(start)
+	end = data.find(zip_end)
+	print "Found ZIP end @ " + str(end)
+	
+	zip_file = data[start:end]
+	
+	file = open(str(start) + "_" + str(end) + ".zip", "wb")
+	file.write(zip_file)
+	file.close
+	
+	
+	
 
 ''' This function was found in index.php of AzoRult panel which does the decryption of the paylod '''
 ''' Since we want to be able to manipuate the content we first have to decrypt it '''
@@ -43,22 +60,26 @@ def decrypt():
 
 	input_byte = bytearray(open(input_file, 'rb').read())
 
-	data_sanitized = extract_payload(input_byte)
+	data_sanitized = extract_payload(input_byte)	
 
 	size = len(data_sanitized)
 
-	decrypted = CB_XORm(data_sanitized, xor_key, 1024*512)
+	decrypted = CB_XORm(data_sanitized, xor_key, 1024*512)	
 
 	if "G" in str(decrypted)[0]:
 		print "Content started with G"
 		substring = str(decrypted)[1:]
 		payload = unquote(substring)
 		WriteToDisk(payload, output_file)
+		ExtractZipFiles(str(decrypted)[1:])
+		
 	elif "<" in str(decrypted)[0]:
 		print "Content started with <"
 		substring = str(decrypted)
 		payload = unquote(substring)
 		WriteToDisk(payload, output_file)
+		print "Extracting ZIP file(s)"
+		ExtractZipFiles(0, decrypted)
 	
 if len(sys.argv) < 3:
 	print "AzoDecrypt"
