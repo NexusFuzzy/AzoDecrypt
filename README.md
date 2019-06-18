@@ -11,6 +11,10 @@ This should give you a file like this:
 
 ![alt text](https://github.com/hariomenkel/AzoDecrypt/raw/master/screenshot2.PNG)
 
+This file can then be used as input which should produce the decrypted output saved as file:
+
+![alt text](https://github.com/hariomenkel/AzoDecrypt/raw/master/screenshot3.PNG)
+
   
 
   
