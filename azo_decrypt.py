@@ -9,9 +9,9 @@ output_file = ""
 ''' This function removes the part of the POST request which is not part of the payload itsself '''
 def extract_payload(data):
     # We are searching for a specific byte sequence which marks the start of our payload
-    found = data.find(b'\x0d\x0a\x0d\x0a')
+    found = data.find(b'\x3c\x69\x6e\x66\x6f')
     print("Found payload at position " + str(found))
-    return data[found + 4:]
+    return data[found:]
 
 
 ''' Inside the payload there is a ZIP file containint text files with stolen credentials, cookies etc. so we extract it'''
@@ -25,30 +25,18 @@ def ExtractZipFiles(startpos, data):
 
     zip_file = data[start:end]
 
-    file = open(str(start) + "_" + str(end) + ".zip", "wb")
+    file = open(os.path.dirname(output_file) + "/" + str(start) + "_" + str(end) + ".zip", "wb")
+
     file.write(zip_file)
     file.close()
 
 
 ''' This function was found in index.php of AzoRult panel which does the decryption of the paylod '''
-def CB_XORm(data, key, max):
-    output = []
-    datalen = len(data)
-    keylen = len(key)
-    if (datalen >= max):
-        datalen = max
-
-    j = 0
-    i = 0
-
-    while i < datalen:
-        output.append(data[i] ^ ord(key[j]))
-        j = j + 1
-        if j > keylen - 1:
-            j = 0
-        i = i + 1
-    l = bytes(output)
-    return l
+def xor(data, key):
+    l = len(key)
+    return bytearray((
+        (data[i] ^ key[i % l]) for i in range(0,len(data))
+    ))
 
 
 ''' Self explanatory I guess '''
@@ -64,19 +52,21 @@ def decrypt():
     # This key was found in index.php and is used to decrypt the content
     # Since this key is also hard coded into the client it is highly unlikely that this will ever change
     # since no one will put the effort into changing the client I guess
-    xor_key = chr(13) + chr(10) + chr(200)
-
+    # If you want to detect the key, use https://github.com/hariomenkel/AzoBrute
+    xor_key = b'\x0a\xc8\x0d'
     input_byte = open(input_file, 'rb').read()
 
+    decrypted = xor(input_byte, xor_key)
     # We strip the POST data from the payload
-    data_sanitized = extract_payload(input_byte)
+    data_sanitized = extract_payload(decrypted)
     size = len(data_sanitized)
 
     # Finally we decrypt the data using the XOR key
-    decrypted = CB_XORm(data_sanitized, xor_key, 1024 * 512)
+
+    #decrypted = xor(input_byte, xor_key)
 
     # The payload either starts with "G" which contains just a unique system id...
-    if "G" in chr(decrypted[0]):
+    if "G" in chr(data_sanitized[0]):
         print("Content started with G")
         substring = str(decrypted)[1:]
         payload = urllib.parse.unquote(substring)
@@ -84,7 +74,7 @@ def decrypt():
         ExtractZipFiles(str(decrypted)[1:])
 
     # ... or it starts with "<" which indicates that this POST contains the stolen data
-    elif "<" in chr(decrypted[0]):
+    elif "<" in chr(data_sanitized[0]):
         print("Content started with <")
         substring = str(decrypted)
         payload = urllib.parse.unquote(substring, "utf-8")
