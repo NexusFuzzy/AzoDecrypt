@@ -15,6 +15,8 @@ This file can then be used as input which should produce the decrypted output sa
 
 ![alt text](https://github.com/hariomenkel/AzoDecrypt/raw/master/screenshot3.PNG)
 
+Please note that this tool relies on a XOR key which sometimes changes from AzoRult version to version. If the fixed one doesn't work, you can use [AzoBrute](https://github.com/hariomenkel/AzoBrute) to get the correct XOR key.
+
 The script should also produce a ZIP file in the directory where it resides. The ZIP contains all credentials, cookies etc. how they were transmitted to the attacker.  
 
   
